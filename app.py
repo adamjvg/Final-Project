@@ -1,56 +1,92 @@
-from flask import Flask, render_template, session, redirect, url_for, session
+#################################################
+# Import Dependencies
+#################################################
+from flask import Flask, render_template, session, redirect, url_for
 from flask_wtf import FlaskForm
-from wtforms import TextField,SubmitField
-from wtforms.validators import NumberRange
-import numpy as np 
+from wtforms import TextField, SubmitField
 from tensorflow.keras.models import load_model
-import joblib
+import numpy as np
+from flask_cors import CORS
 
-def return_prediction(model,scaler,sample_json):
-    ### put our own params in
 
-classes = np.array([‘setosa’, ‘versicolor’, ‘virginica’])
- class_ind = model.predict_classes(flower)
- 
- return classes[class_ind][0]
+#################################################
+# Load Model
+#################################################
+bot_model = load_model('bot_trained.h5')
 
+
+#################################################
+# Define prediction function
+#################################################
+def return_prediction(model, sample_json):
+    acct_age = sample_json['Account Age']
+    no_fwers = sample_json['no_follower']
+    no_fwing = sample_json['no_following']
+    no_twts = sample_json['no_tweets']
+
+    bot_or_not = [[acct_age, no_fwers, no_fwing, no_twts]]
+
+    classes = np.array(['spammer', 'non-spammer'])
+    class_ind = model.predict_classes(bot_or_not)
+
+    return classes[class_ind][0]
+
+#################################################
+# Flask Setup
+#################################################
 app = Flask(__name__)
+CORS(app)
 
-# Loading the model and scaler
-flower_model = load_model(“bot_trained.h5”)
-flower_scaler = joblib.load(“iris_scaler.pkl”)
-# Now create a WTForm Class
-class FlowerForm(FlaskForm):
- sep_len = TextField(‘Sepal Length’)
- sep_wid = TextField(‘Sepal Width’)
- pet_len = TextField(‘Petal Length’)
- pet_wid = TextField(‘Petal Width’)
- submit = SubmitField(‘Analyze’)
- 
-@app.route(‘/’, methods=[‘GET’, ‘POST’])
- def index():
-  # Create instance of the form.
-  form = FlowerForm()
-  # If the form is valid on submission
-  if form.validate_on_submit():
-  # Grab the data from the input on the form.
-  session[‘sep_len’] = form.sep_len.data
-  session[‘sep_wid’] = form.sep_wid.data
-  session[‘pet_len’] = form.pet_len.data
-  session[‘pet_wid’] = form.pet_wid.data
-return redirect(url_for(“prediction”))
-return render_template(‘home.html’, form=form)
-@app.route(‘/prediction’)
+# Configure a secret SECRET_KEY
+app.config['SECRET_KEY'] = "cNrKZARNyYCxma8hgFNqJXE8fUVEb9v4nXtV"
 
+#################################################
+# Class setup
+#################################################
+class UserData(FlaskForm):
+    account_age = TextField('Account Age')
+    no_follower = TextField('No of Followers')
+    no_following = TextField('No Following')
+    no_tweets = TextField('No of Tweets')
+    submit = SubmitField('Analyze')
+
+
+#################################################
+# Flask Routes
+#################################################
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    # Create instance of the form.
+    form = UserData()
+    # If the form is valid on submission
+    if form.validate_on_submit():
+        # Grab the data from the input on the form
+        session['account_age'] = form.account_age.data
+        session['no_follower'] = form.no_follower.data
+        session['no_following'] = form.no_following.data
+        session['no_tweets'] = form.no_tweets.data
+
+    return redirect(url_for('prediction'))
+
+    return render_template('home.html', form=form)
+
+@app.route('/prediction')
 def prediction():
- #Defining content dictionary
- content = {}
-content[‘sepal_length’] = float(session[‘sep_len’])
- content[‘sepal_width’] = float(session[‘sep_wid’])
- content[‘petal_length’] = float(session[‘pet_len’])
- content[‘petal_width’] = float(session[‘pet_wid’])
- 
- results = return_prediction(model=flower_model,scaler=flower_scaler,sample_json=content)
-return render_template(‘prediction.html’,results=results)
-if __name__ == ‘__main__’:
- app.run(debug=True)
+    # Defining content dictionary
+    content = {}
+
+    content['Account Age'] = float(session['account_age'])
+    content['No of Followers'] = float(session['no_follower'])
+    content['No Following'] = float(session['no_following'])
+    content['No of Tweets'] = float(session['no_tweets'])
+
+    results = return_prediction(model = bot_model, sample_json = content)
+
+    return render_template('prediction.html', results = results)
+
+
+#################################################
+# Python Debug
+#################################################
+if __name__ == '__main__':
+    app.run(debug=True)
