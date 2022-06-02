@@ -47,11 +47,11 @@ app.config['SECRET_KEY'] = "cNrKZARNyYCxma8hgFNqJXE8fUVEb9v4nXtV"
 # Class setup
 #################################################
 class UserData(FlaskForm):
-    account_age = TextField('Account Age')
-    no_follower = TextField('No of Followers')
-    no_following = TextField('No Following')
-    no_tweets = TextField('No of Tweets')
-    no_retweets = TextField('No of Retweets')
+    account_age = StringField('Account Age')
+    no_follower = StringField('No of Followers')
+    no_following = StringField('No Following')
+    no_tweets = StringField('No of Tweets')
+    no_retweets = StringField('No of Retweets')
     submit = SubmitField('Analyse')
 
 
