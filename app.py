@@ -3,7 +3,7 @@
 #################################################
 from flask import Flask, render_template, session, redirect, url_for, session
 from flask_wtf import FlaskForm
-from wtforms import TextField, SubmitField
+from wtforms import StringField,SubmitField
 from wtforms.validators import NumberRange
 from tensorflow.keras.models import load_model
 import numpy as np
