@@ -1,19 +1,41 @@
+<!DOCTYPE html>
 <html>
 
-    <h1>Twitter bot predictor</h1>
-    <h2>Please enter your twitter account statistics below:</h2>
-    <form method="POST">
-        <input id="csrf_token" name="csrf_token" type="hidden" value="cNrKZARNyYCxma8hgFNqJXE8fUVEb9v4nXtV">
-        {{form.account_age.label}}: {{form.account_age}}
-        <br>
-        {{ form.no_follower.label}}: {{form.no_follower}}
-        <br>
-        {{form.no_following.label}}: {{form.no_following}}
-        <br>
-        {{form.no_tweets.label}}: {{form.no_tweets}}
-        <br>
-        {{form.no_retweets.label}}: {{form.no_retweets}}
-        <br>
-        {{form.submit()}}
-    </form>
+  <head>
+    <title>Twitter Bot Tester</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+    <link rel='stylesheet' href='static/css/style.css'>
+  </head>
+
+  <body>
+    <div class="main-block">
+      <h1>Twitter Bot Tester</h1>
+      <form method="POST">
+        {{ form.hidden_tag() }}
+        <hr>
+        
+        <label id="icon" for="name"><i class="fas fa-user"></i></label>
+        <input id="account_age" name="account_age" type="text" value="" placeholder="Account Age" required/>
+
+        <label id="icon" for="name"><i class="fas fa-user"></i></label>
+        <input id="no_follower" name="no_follower" type="text" value="" placeholder="Number of Followers" required/>
+        
+        <label id="icon" for="name"><i class="fas fa-user"></i></label>
+        <input id="no_following" name="no_following" type="text" value="" placeholder="Number Following" required/>
+        
+        <label id="icon" for="name"><i class="fas fa-user"></i></label>
+        <input id="no_tweets" name="no_tweets" type="text" value="" placeholder="Number of Tweets" required/>
+        
+        <label id="icon" for="name"><i class="fas fa-user"></i></label>
+        <input id="no_retweets" name="no_retweets" type="text" value="" placeholder="Number of Retweets" required/>
+        
+        <hr>
+        <div class="btn-block">
+          <p>By clicking Analyse, you agree to the <a href="https://www.oaic.gov.au/privacy/the-privacy-act"> Australian Privacy Act</a>.</p>
+          <button> <input id="submit" name="submit" type="submit" value="Analyse" href="/prediction"></button>
+        </div>
+      </form>
+    </div>
+  </body>
 </html>

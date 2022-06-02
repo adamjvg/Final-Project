@@ -8,18 +8,13 @@ from wtforms.validators import NumberRange
 from tensorflow.keras.models import load_model
 import numpy as np
 from flask_cors import CORS
-
-
-#################################################
-# Load Model
-#################################################
-bot_model = load_model('bot_trained.h5')
+import joblib
 
 
 #################################################
 # Define prediction function
 #################################################
-def return_prediction(model, user_obj):
+def return_prediction(model, scaler, user_obj):
     acct_age = user_obj['account_age']
     no_fwers = user_obj['no_follower']
     no_fwing = user_obj['no_following']
@@ -27,8 +22,9 @@ def return_prediction(model, user_obj):
     no_rtwts = user_obj['no_retweets']
 
     bot_or_not = [[acct_age, no_fwers, no_fwing, no_twts, no_rtwts]]
+    bot_or_not = scaler.transform(bot_or_not)
 
-    classes = np.array(['spammer', 'non-spammer'])
+    classes = np.array(['Non-Spammer', 'Spammer'])
     class_ind = model.predict_classes(bot_or_not)
 
     return classes[class_ind][0]
@@ -42,6 +38,14 @@ CORS(app)
 
 # Configure a secret SECRET_KEY
 app.config['SECRET_KEY'] = "cNrKZARNyYCxma8hgFNqJXE8fUVEb9v4nXtV"
+
+
+#################################################
+# Load Model & Scaler
+#################################################
+bot_model = load_model('bot_trained.h5')
+bot_scaler = joblib.load('bot_scaler.pkl')
+
 
 #################################################
 # Class setup
@@ -86,7 +90,7 @@ def prediction():
     content['no_tweets'] = float(session['no_tweets'])
     content['no_retweets'] = float(session['no_retweets'])
 
-    results = return_prediction(model = bot_model, user_obj = content)
+    results = return_prediction(model = bot_model, scaler = bot_scaler, user_obj = content)
 
     return render_template('prediction.html', results = results)
 
